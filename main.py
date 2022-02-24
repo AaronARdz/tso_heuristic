@@ -90,13 +90,14 @@ if __name__ == '__main__':
                'big_dataset_3']
     for ds in ds_list:
         start = timeit.default_timer()
-        sub, alb = read_data_set("big_dataset_5")
+        sub, alb = read_data_set(ds)
         solver = sv.solver(sub, alb)
         winning_list, total, albs = solver.solve_greedy()
-        print(len(winning_list.keys()))
+        print(ds)
+        print(len(winning_list.keys()), 'picked subsets')
+        print(len(sub), 'total subs')
         print(total)
-
         stop = timeit.default_timer()
-
         print('Time: ', stop - start)
+        print('----------------------------------------')
 

@@ -16,7 +16,7 @@ class solver:
         # sort tuples by cost value
         sorted_subsets = sorted(self.subsets, key=lambda x: x[1])
         # initialize dictionary with values 0
-        print(len(self.album_universe.keys()))
+        print(len(self.album_universe.keys()), 'album keys')
 
         # select subsets and fill album
         for subset in sorted_subsets:
@@ -24,7 +24,6 @@ class solver:
                 total += self.subsets[index][1]
             index = subset[2]
             if len(covered_album) == len(self.album_universe.keys()):
-                print(len(covered_album), len(self.album_universe.keys()), 'All covered')
                 break
             for j in subset[0]:
                 if j in self.album_universe and self.album_universe.get(j) != 1:
