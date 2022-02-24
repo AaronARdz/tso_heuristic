@@ -78,10 +78,10 @@ def read_data_set(name):
 if __name__ == '__main__':
     # # number_of_subsets, columns, album_size, rangen
     # define_dataset(10000, 25, 10000, 10000000)
+
     ds_list = ['mini_dataset_1',
                'mini_dataset_2',
                'mini_dataset_3',
-               'mini_dataset_2',
                'medium_dataset_1',
                'medium_dataset_2',
                'medium_dataset_3',
@@ -92,7 +92,7 @@ if __name__ == '__main__':
         start = timeit.default_timer()
         sub, alb = read_data_set(ds)
         solver = sv.solver(sub, alb)
-        winning_list, total, albs = solver.solve_greedy()
+        winning_list, total, albs = solver.solve_heuristic()
         print(ds)
         print(len(winning_list.keys()), 'picked subsets')
         print(len(sub), 'total subs')
@@ -101,3 +101,13 @@ if __name__ == '__main__':
         print('Time: ', stop - start)
         print('----------------------------------------')
 
+    # start = timeit.default_timer()
+    # sub, alb = read_data_set("big_dataset_2")
+    # solver = sv.solver(sub, alb)
+    # winning_list, total, albs = solver.solve_greedy()
+    # print("mini")
+    # print('picked subsets', len(winning_list.keys()),)
+    # print('total subs', len(sub))
+    # print(total)
+    # stop = timeit.default_timer()
+    # print('Time: ', stop - start)
