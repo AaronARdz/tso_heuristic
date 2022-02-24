@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import csv
 import solve_greedy as sv
+import timeit
 
 
 ## 1 step, Create columns
@@ -37,7 +38,9 @@ def create_subsets(number_of_subsets, columns, rangen):
 
 
 def create_cost_values(number_of_subsets):
-    return np.random.rand(number_of_subsets)
+    # return np.random.rand(number_of_subsets)
+    mu, sigma = 3., 1.  # mean and standard deviation
+    return np.random.lognormal(mu, sigma, number_of_subsets)
 
 
 def define_dataset(number_of_subsets, columns, album_size, rangen):
@@ -51,32 +54,13 @@ def define_dataset(number_of_subsets, columns, album_size, rangen):
         tup = [subs[i], cost_values[i], i]
         subset_with_cost.append(tup)
 
-    with open("big2.csv", "w", newline='') as f:
+    with open("big_dataset_3.csv", "w", newline='') as f:
         writer = csv.writer(f, lineterminator='\n')
         writer.writerows(map(lambda x: [x], album_list.keys()))
         writer.writerows(subset_with_cost)
 
-def read_data_set():
-    file1 = open('big2.csv', 'r')
-    lines = file1.readlines()
-    temp_dict = dict()
-    temp_list = list()
-
-    for line in lines:
-        new_line = line.strip().split(',')
-        print(new_line, len(new_line))
-        if len(new_line) == 1:
-            temp_dict[new_line[0]] = 0
-        else:
-            # int_subset = map(lambda x: [x], new_line[0][1:-1].split())
-            # print(int_subset)
-            split_line = [new_line[0][1:-1].split(), float(new_line[1]), int(new_line[2])]
-            temp_list.append(split_line)
-
-    return temp_list, temp_dict
-
-def readd():
-    with open('big_dataset_3.csv', newline='') as f:
+def read_data_set(name):
+    with open(f'{name}.csv', newline='') as f:
         reader = csv.reader(f)
         temp_dict = dict()
         temp_list = list()
@@ -92,11 +76,27 @@ def readd():
     return temp_list, temp_dict
 
 if __name__ == '__main__':
-    # define_dataset(30, 20, 15, 10000)
-    sub, alb = readd()
-    solver = sv.solver(sub, alb)
-    winning_list, total, albs = solver.solve_greedy()
-    print(winning_list)
-    print(total)
+    # # number_of_subsets, columns, album_size, rangen
+    # define_dataset(10000, 25, 10000, 10000000)
+    ds_list = ['mini_dataset_1',
+               'mini_dataset_2',
+               'mini_dataset_3',
+               'mini_dataset_2',
+               'medium_dataset_1',
+               'medium_dataset_2',
+               'medium_dataset_3',
+               'big_dataset_1',
+               'big_dataset_2',
+               'big_dataset_3']
+    for ds in ds_list:
+        start = timeit.default_timer()
+        sub, alb = read_data_set("big_dataset_5")
+        solver = sv.solver(sub, alb)
+        winning_list, total, albs = solver.solve_greedy()
+        print(len(winning_list.keys()))
+        print(total)
 
+        stop = timeit.default_timer()
+
+        print('Time: ', stop - start)
 
