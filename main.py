@@ -54,7 +54,7 @@ def define_dataset(number_of_subsets, columns, album_size, rangen):
         tup = [subs[i], cost_values[i], i]
         subset_with_cost.append(tup)
 
-    with open("big_dataset_3.csv", "w", newline='') as f:
+    with open("mini_dataset_7.csv", "w", newline='') as f:
         writer = csv.writer(f, lineterminator='\n')
         writer.writerows(map(lambda x: [x], album_list.keys()))
         writer.writerows(subset_with_cost)
@@ -76,8 +76,8 @@ def read_data_set(name):
     return temp_list, temp_dict
 
 if __name__ == '__main__':
-    # # number_of_subsets, columns, album_size, rangen
-    # define_dataset(10000, 25, 10000, 10000000)
+    # number_of_subsets, columns, album_size, rangen
+    # define_dataset(200, 5, 50, 100)
 
     ds_list = ['mini_dataset_1',
                'mini_dataset_2',
@@ -88,26 +88,34 @@ if __name__ == '__main__':
                'big_dataset_1',
                'big_dataset_2',
                'big_dataset_3']
-    for ds in ds_list:
-        start = timeit.default_timer()
-        sub, alb = read_data_set(ds)
-        solver = sv.solver(sub, alb)
-        winning_list, total, albs = solver.solve_heuristic()
-        print(ds)
-        print(len(winning_list.keys()), 'picked subsets')
-        print(len(sub), 'total subs')
-        print(total)
-        stop = timeit.default_timer()
-        print('Time: ', stop - start)
-        print('----------------------------------------')
+    # for ds in ds_list:
+    #     start = timeit.default_timer()
+    #     sub, alb = read_data_set(ds)
+    #     solver = sv.solver(sub, alb)
+    #     winning_list, total, albs = solver.solve_heuristic()
+    #     print(ds)
+    #     print(len(winning_list.keys()), 'picked subsets')
+    #     print(len(sub), 'total subs')
+    #     print(total)
+    #     stop = timeit.default_timer()
+    #     print('Time: ', stop - start)
+    #     print('----------------------------------------')
 
     # start = timeit.default_timer()
-    # sub, alb = read_data_set("big_dataset_2")
+    # sub, alb = read_data_set("mini_dataset_2")
     # solver = sv.solver(sub, alb)
-    # winning_list, total, albs = solver.solve_greedy()
+    # winning_list, total, albs = solver.solve_heuristic()
     # print("mini")
-    # print('picked subsets', len(winning_list.keys()),)
+    # print('picked subsets', winning_list,)
     # print('total subs', len(sub))
     # print(total)
     # stop = timeit.default_timer()
     # print('Time: ', stop - start)
+
+    # Local Search
+    start = timeit.default_timer()
+    sub, alb = read_data_set("mini_dataset_7")
+    solver = sv.solver(sub, alb)
+    solver.localsearch()
+    stop = timeit.default_timer()
+    print('Time: ', stop - start)
