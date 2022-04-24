@@ -5,7 +5,6 @@
 import sys
 
 import numpy as np
-import pandas as pd
 import csv
 import solve_greedy as sv
 import timeit

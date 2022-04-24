@@ -59,8 +59,8 @@ class solver:
             for j in subset[0]:
                 if j in currentAlbum:
                     coincidences.add(j)
-            # tup = (len(coincidences) * 2) / subset[1], idx
-            tup = len(coincidences), idx
+            tup = (len(coincidences) * 2) / subset[1], idx
+            # tup = len(coincidences), idx
             subset_score.append(tup)
             idx += 1
 
@@ -100,12 +100,9 @@ class solver:
             ls_covered_album = set()
             switched_list = copy.copy(winning_list)
             switched_list.pop(random.choice(list(winning_list.keys())))
-            print(len(self.sorted_score_list))
-            print(self.global_counter, 'counter')
-            print(self.sorted_score_list)
 
-            for i in range(10):
-                switched_list[self.sorted_score_list[self.global_counter+i][1]] = 1
+            for i in range(5):
+                switched_list[self.sorted_score_list[self.global_counter+tries+i][1]] = 1
 
             for idx in switched_list.keys():
                 subset = self.subsets[idx]
@@ -119,37 +116,18 @@ class solver:
                         ls_covered_album.add(j)
                         ls_covered_subsets[index] = 1
             tries += 1
-            print(tries)
+            print(tries, 'intento')
 
             print(len(ls_covered_album), len(ls_album.keys()))
-            print(total, ls_total)
+            print('Actual->', total,'ls ->', ls_total)
             if ls_total < total and len(ls_covered_album) == len(ls_album.keys()):
                 improved = True
-            if tries == 5:
+                print('Improved')
+            if tries == 100:
                 improved = True
 
         print(winning_list.keys())
 
-# 0
-# 7.890778490876138
-# 16.28158638594216
-# 25.343808075828917
-# 37.835091709831254
-# 50.639895807752445
-# 63.54640639624861
-# 78.21918230765664
-# 93.9197439575593
-# 110.16145286197295
-# 128.7039348343765
-# 152.55802759831937
-# 177.81005896526452
-# 203.33905239055542
-# 229.10047650724164
-# 277.2821800749483
-# 351.5792831689795
-# 426.56310825538367
-# 508.38825563554906
-# 826.6908609218771
-# 649.8535374359797
+
 
 
