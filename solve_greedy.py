@@ -131,6 +131,7 @@ class solver:
 
     def localsearch_improved(self):
         winning_list, total = self.solve_heuristic()
+        print('Total picked subsets: ', len(winning_list.keys()))
         improved = False
         finished = False
         tries = 1
@@ -247,11 +248,12 @@ class solver:
             if tries == 60:
                 finished = True
 
-        print(winning_list.keys())
+        print('Improved list: ',len(improved_list))
 
     def local_search_swap(self):
         winning_list, total = self.solve_heuristic()
         print('FIRST SOLUTION', winning_list)
+        print('Total picked subsets: ', len(winning_list.keys()))
         improved = False
         tries = 0
         print(total)
@@ -329,7 +331,7 @@ class solver:
                 # actualizar la lista de subsets elegida
                 original_list[found_subset[2]] = 1
                 print('Improved total', ls_total)
-                print(original_list)
+                print('Total new subsets: ', len(original_list.keys()))
                 print(winning_list)
                 winning_list = original_list
                 improved = True

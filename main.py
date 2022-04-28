@@ -53,7 +53,7 @@ def define_dataset(number_of_subsets, columns, album_size, rangen):
         tup = [subs[i], cost_values[i], i]
         subset_with_cost.append(tup)
 
-    with open("mini_dataset_10.csv", "w", newline='') as f:
+    with open("big_dataset_8.csv", "w", newline='') as f:
         writer = csv.writer(f, lineterminator='\n')
         writer.writerows(map(lambda x: [x], album_list.keys()))
         writer.writerows(subset_with_cost)
@@ -76,7 +76,7 @@ def read_data_set(name):
 
 if __name__ == '__main__':
     # number_of_subsets, columns, album_size, rangen
-    # define_dataset(200, 5, 50, 70)
+    # define_dataset(5000, 30, 500, 1000)
 
     ds_list = ['mini_dataset_1',
                'mini_dataset_2',
@@ -113,7 +113,7 @@ if __name__ == '__main__':
 
     # Local Search
     start = timeit.default_timer()
-    sub, alb = read_data_set("mini_dataset_9")
+    sub, alb = read_data_set("big_dataset_8")
     solver = sv.solver(sub, alb)
     solver.local_search_swap()
     stop = timeit.default_timer()
