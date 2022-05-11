@@ -89,46 +89,6 @@ class solver:
 
         return covered_subsets, total
 
-    def localsearch(self):
-        winning_list, total = self.solve_heuristic()
-        improved = False
-        tries = 0
-
-        while not improved:
-            ls_total = 0
-            ls_album = copy.copy(self.album_universe)
-            ls_covered_subsets = dict()
-            ls_covered_album = set()
-            switched_list = copy.copy(winning_list)
-            switched_list.pop(random.choice(list(winning_list.keys())))
-
-            for i in range(5):
-                switched_list[self.sorted_score_list[self.global_counter+tries+i][1]] = 1
-
-            for idx in switched_list.keys():
-                subset = self.subsets[idx]
-                index = idx
-                ls_total += self.subsets[index][1]
-                if len(ls_covered_album) == len(ls_album.keys()):
-                    break
-                for j in subset[0]:
-                    if j in ls_album and ls_album.get(j) != 1:
-                        ls_album[j] = 1
-                        ls_covered_album.add(j)
-                        ls_covered_subsets[index] = 1
-            tries += 1
-            print(tries, 'intento')
-
-            print(len(ls_covered_album), len(ls_album.keys()))
-            print('Actual->', total,'ls ->', ls_total)
-            if ls_total < total and len(ls_covered_album) == len(ls_album.keys()):
-                improved = True
-                print('Improved')
-            if tries == 100:
-                improved = True
-
-        print(winning_list.keys())
-
     def localsearch_improved(self):
         winning_list, total = self.solve_heuristic()
         print('Total picked subsets: ', len(winning_list.keys()))
@@ -254,18 +214,27 @@ class solver:
         winning_list, total = self.solve_heuristic()
         print('FIRST SOLUTION', winning_list)
         print('Total picked subsets: ', len(winning_list.keys()))
+        current_solution = copy.copy(winning_list)
+        new_solution = current_solution
         improved = False
+        finished = False
+        current_total = copy.copy(total)
+        new_total = current_total
         tries = 0
-        print(total)
+        global_counter = 0
+        print(new_total)
 
-        while not improved:
-            ls_total = 0
-            ls_album = copy.copy(self.album_universe)
-            ls_covered_subsets = dict()
-            ls_covered_album = set()
-            original_list = copy.copy(winning_list)
-            switched_list = list(winning_list.keys())
-            improved_score = list()
+        while not finished:
+            if not improved:
+                ls_album = copy.copy(self.album_universe)
+                switched_list = list(winning_list.keys())
+                current_solution = copy.copy(winning_list)
+                improved_score = list()
+            elif improved:
+                ls_album = copy.copy(self.album_universe)
+                switched_list = list(new_solution.keys())
+                improved_score = list()
+                current_total = new_total
 
             for x in range(math.floor(len(switched_list))):
                 if x >= len(switched_list):
@@ -286,6 +255,7 @@ class solver:
                 improved_score.append(idx_score_tuple)
             # encontrar los subsets elegidos que aportan menos
             improved_score = sorted(improved_score, key=lambda x: x[1], reverse=True)
+            print('improved',improved_score)
 
 
             # encontrar los items de los subsets anteriores
@@ -304,7 +274,7 @@ class solver:
                 count += 1
                 cost_sum += self.subsets[improved_score[-x][0]][1]
                 subsets_to_replace.append(improved_score[-x][0])
-                del original_list[improved_score[-x][0]]
+                del current_solution[improved_score[-x][0]]
 
             flat_list = [item for sublist in last_two_list for item in sublist]
             print(flat_list)
@@ -326,22 +296,30 @@ class solver:
             if found and cost_sum > found_subset[1]:
                 print('mejora encontrada')
                 # actualizar el total
-                ls_total = total - cost_sum
-                ls_total += found_subset[1]
+                new_total = current_total - cost_sum
+                new_total += found_subset[1]
                 # actualizar la lista de subsets elegida
-                original_list[found_subset[2]] = 1
-                print('Improved total', ls_total)
-                print('Total new subsets: ', len(original_list.keys()))
-                print(winning_list)
-                winning_list = original_list
+                current_solution[found_subset[2]] = 1
+                print('Improved total', new_total)
+                print('Total new subsets: ', len(current_solution.keys()))
+                print(new_solution)
+                new_solution = current_solution
                 improved = True
 
             tries += 1
+            global_counter += 1
 
             if tries == len(improved_score) - 1:
-                improved = True
+                finished = True
 
-        print(winning_list.keys())
+            if global_counter == 100:
+                finished = True
+
+            print(global_counter, 'global')
+
+        print(new_solution.keys())
+        print(new_total)
+        print(global_counter)
 
 
 
