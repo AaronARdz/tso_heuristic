@@ -76,16 +76,23 @@ def read_data_set(name):
 
 def Grasp():
     start = timeit.default_timer()
-    sub, alb = read_data_set("big_dataset_8")
+    sub, alb = read_data_set("big_dataset_7")
+    solutions = list()
 
-    for i in range(1):
-        solver = sv.solver(sub, alb)
+    for i in range(200):
+        solver = sv.solver(sub, alb, 10)
         total, solution = solver.local_search_swap()
         number_of_subsets = solution.keys()
         print('TOTAL: ', total)
         print('SOLUTION: ', solution)
         print('NUMBER OF SUBSETS: ', len(number_of_subsets))
+        tup = total, len(number_of_subsets)
+        solutions.append(tup)
 
+    solutions = sorted(solutions, key=lambda x: x[0], reverse=False)
+
+    for sol in solutions:
+        print(sol)
 
     stop = timeit.default_timer()
     print('Time: ', stop - start)
@@ -105,7 +112,7 @@ if __name__ == '__main__':
                'big_dataset_2',
                'big_dataset_3']
 
-
+    Grasp()
     # for ds in ds_list:
     #     start = timeit.default_timer()
     #     sub, alb = read_data_set(ds)

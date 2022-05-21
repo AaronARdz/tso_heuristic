@@ -1,18 +1,22 @@
 import copy
 import math
 import random
+import numpy as np
 
 class solver:
     subsets = list()
     album_universe = dict()
     scores = list()
     sorted_score_list = list()
+    cardinality = 0
+    alpha = 0
     global_counter = 0
 
     # parameterized constructor
-    def __init__(self, subsets, album_universe):
+    def __init__(self, subsets, album_universe, k):
         self.subsets = subsets
         self.album_universe = album_universe
+        self.cardinality = k
 
     def solve_greedy(self):
         total = 0
@@ -68,6 +72,71 @@ class solver:
         # sort tuples by cost value
         sorted_scores = sorted(subset_score, key=lambda x: x[0], reverse=True)
         self.sorted_score_list = copy.copy(sorted_scores)
+
+        # select subsets and fill album
+        for score in sorted_scores:
+            counter += 1
+            score_idx = score[1]
+            subset = self.subsets[score_idx]
+            if covered_subsets.get(index) == 1:
+                total += self.subsets[index][1]
+            index = score_idx
+            if len(covered_album) == len(currentAlbum.keys()):
+                break
+            for j in subset[0]:
+                if j in currentAlbum and currentAlbum.get(j) != 1:
+                    currentAlbum[j] = 1
+                    covered_album.add(j)
+                    covered_subsets[index] = 1
+
+        self.global_counter = copy.copy(counter-1)
+
+        return covered_subsets, total
+
+    def chunks(self, lst, n):
+        list_chunks = list()
+
+        # Yield successive n-sized chunks from lst
+        for i in range(0, len(lst), n):
+            list_chunks.append(lst[i:i + n])
+
+        flat_chunks = list()
+
+        for chunk in list_chunks:
+            random.shuffle(chunk)
+            for j in chunk:
+                flat_chunks.append(j)
+
+        self.sorted_score_list = copy.copy(flat_chunks)
+        return flat_chunks
+
+    def solve_heuristic_randomized(self):
+        total = 0
+        covered_album = set()
+        covered_subsets = dict()
+        index = None
+        idx = 0
+        counter = 0
+        # initialize dictionary with values 0
+        subset_score = list()
+        currentAlbum = copy.copy(self.album_universe)
+
+        # select subsets and set scores
+        for subset in self.subsets:
+            coincidences = set()
+            for j in subset[0]:
+                if j in currentAlbum:
+                    coincidences.add(j)
+            tup = (len(coincidences) * 2) / subset[1], idx
+            # tup = subset[1], idx
+            subset_score.append(tup)
+            idx += 1
+
+        # sort tuples by cost value
+        sorted_scores = sorted(subset_score, key=lambda x: x[0], reverse=True)
+        # Divide sorted score list in chunks of size k cardinality
+        # Randomized each chunk and return flat list
+        sorted_scores = self.chunks(sorted_scores, self.cardinality)
 
         # select subsets and fill album
         for score in sorted_scores:
@@ -212,11 +281,12 @@ class solver:
         print('Improved list: ',len(improved_list))
 
     def local_search_swap(self):
-        winning_list, total = self.solve_heuristic()
+        winning_list, total = self.solve_heuristic_randomized()
         print('FIRST SOLUTION', winning_list)
         print('Total picked subsets: ', len(winning_list.keys()))
         current_solution = copy.copy(winning_list)
         new_solution = current_solution
+        ls_album = dict()
         improved = False
         finished = False
         current_total = copy.copy(total)
@@ -297,7 +367,8 @@ class solver:
             if len(found_subset) > 0:
                 print(found_subset, 'found subset')
 
-            print(cost_sum, 'cost sum')
+            # print(tries, 'tries')
+            # print(cost_sum, 'cost')
             if found and cost_sum > found_subset[1]:
                 for sub in subsets_to_replace:
                     del current_solution[sub]
