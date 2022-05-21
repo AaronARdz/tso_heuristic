@@ -110,6 +110,7 @@ class solver:
                 improved_score = list()
                 additional_scores = list()
                 print("switched", switched_list)
+                current_total = new_total
             else:
                 total = new_total
                 ls_total = 0
@@ -227,10 +228,12 @@ class solver:
         while not finished:
             if not improved:
                 ls_album = copy.copy(self.album_universe)
-                switched_list = list(winning_list.keys())
-                current_solution = copy.copy(winning_list)
+                switched_list = list(new_solution.keys())
+                current_solution = copy.copy(new_solution)
                 improved_score = list()
+                current_total = new_total
             elif improved:
+                tries = 0
                 ls_album = copy.copy(self.album_universe)
                 switched_list = list(new_solution.keys())
                 improved_score = list()
@@ -255,7 +258,7 @@ class solver:
                 improved_score.append(idx_score_tuple)
             # encontrar los subsets elegidos que aportan menos
             improved_score = sorted(improved_score, key=lambda x: x[1], reverse=True)
-            print('improved',improved_score)
+            # print('improved', improved_score)
 
 
             # encontrar los items de los subsets anteriores
@@ -274,11 +277,11 @@ class solver:
                 count += 1
                 cost_sum += self.subsets[improved_score[-x][0]][1]
                 subsets_to_replace.append(improved_score[-x][0])
-                del current_solution[improved_score[-x][0]]
+                # del current_solution[improved_score[-x][0]]
 
             flat_list = [item for sublist in last_two_list for item in sublist]
-            print(flat_list)
-            print('subsets to replace', subsets_to_replace)
+            # print(flat_list)
+            # print('subsets to replace', subsets_to_replace)
 
             # buscar esos items en un subset
             found_subset = []
@@ -291,9 +294,13 @@ class solver:
                     break
 
             # comparar costos
-            print(found_subset, 'found subset')
+            if len(found_subset) > 0:
+                print(found_subset, 'found subset')
+
             print(cost_sum, 'cost sum')
             if found and cost_sum > found_subset[1]:
+                for sub in subsets_to_replace:
+                    del current_solution[sub]
                 print('mejora encontrada')
                 # actualizar el total
                 new_total = current_total - cost_sum
@@ -305,6 +312,8 @@ class solver:
                 print(new_solution)
                 new_solution = current_solution
                 improved = True
+            else:
+                improved = False
 
             tries += 1
             global_counter += 1
@@ -312,14 +321,9 @@ class solver:
             if tries == len(improved_score) - 1:
                 finished = True
 
-            if global_counter == 100:
+            if global_counter == 1000:
                 finished = True
 
-            print(global_counter, 'global')
-
-        print(new_solution.keys())
-        print(new_total)
-        print(global_counter)
-
+        return new_total, new_solution,
 
 

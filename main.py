@@ -74,6 +74,23 @@ def read_data_set(name):
                 temp_list.append(split_line)
     return temp_list, temp_dict
 
+def Grasp():
+    start = timeit.default_timer()
+    sub, alb = read_data_set("big_dataset_8")
+
+    for i in range(1):
+        solver = sv.solver(sub, alb)
+        total, solution = solver.local_search_swap()
+        number_of_subsets = solution.keys()
+        print('TOTAL: ', total)
+        print('SOLUTION: ', solution)
+        print('NUMBER OF SUBSETS: ', len(number_of_subsets))
+
+
+    stop = timeit.default_timer()
+    print('Time: ', stop - start)
+
+
 if __name__ == '__main__':
     # number_of_subsets, columns, album_size, rangen
     # define_dataset(5000, 30, 500, 1000)
@@ -87,6 +104,8 @@ if __name__ == '__main__':
                'big_dataset_1',
                'big_dataset_2',
                'big_dataset_3']
+
+
     # for ds in ds_list:
     #     start = timeit.default_timer()
     #     sub, alb = read_data_set(ds)
@@ -112,9 +131,3 @@ if __name__ == '__main__':
     # print('Time: ', stop - start)
 
     # Local Search
-    start = timeit.default_timer()
-    sub, alb = read_data_set("big_dataset_8")
-    solver = sv.solver(sub, alb)
-    solver.local_search_swap()
-    stop = timeit.default_timer()
-    print('Time: ', stop - start)
