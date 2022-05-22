@@ -3,7 +3,7 @@
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import sys
-
+import pandas as pd
 import numpy as np
 import csv
 import solve_greedy as sv
@@ -42,7 +42,7 @@ def create_cost_values(number_of_subsets):
     return np.random.lognormal(mu, sigma, number_of_subsets)
 
 
-def define_dataset(number_of_subsets, columns, album_size, rangen):
+def define_dataset(number_of_subsets, columns, album_size, rangen, name):
     subs = create_subsets(number_of_subsets, columns, rangen)
     cost_values = create_cost_values(number_of_subsets)
     album_list = create_album(album_size, subs)
@@ -53,10 +53,11 @@ def define_dataset(number_of_subsets, columns, album_size, rangen):
         tup = [subs[i], cost_values[i], i]
         subset_with_cost.append(tup)
 
-    with open("big_dataset_8.csv", "w", newline='') as f:
+    with open(f'{name}.csv', "w", newline='') as f:
         writer = csv.writer(f, lineterminator='\n')
         writer.writerows(map(lambda x: [x], album_list.keys()))
         writer.writerows(subset_with_cost)
+
 
 def read_data_set(name):
     with open(f'{name}.csv', newline='') as f:
@@ -74,13 +75,14 @@ def read_data_set(name):
                 temp_list.append(split_line)
     return temp_list, temp_dict
 
-def Grasp():
+
+def grasp(name, k, alpha):
     start = timeit.default_timer()
-    sub, alb = read_data_set("big_dataset_7")
+    sub, alb = read_data_set(name)
     solutions = list()
 
     for i in range(200):
-        solver = sv.solver(sub, alb, 10)
+        solver = sv.solver(sub, alb, k, alpha)
         total, solution = solver.local_search_swap()
         number_of_subsets = solution.keys()
         print('TOTAL: ', total)
@@ -91,16 +93,18 @@ def Grasp():
 
     solutions = sorted(solutions, key=lambda x: x[0], reverse=False)
 
-    for sol in solutions:
-        print(sol)
+    # for sol in solutions:
+    #    print(sol)
 
+    print('Best Solution: ', solutions[0])
+    print('Worst Solution: ', solutions[-1])
     stop = timeit.default_timer()
     print('Time: ', stop - start)
 
 
 if __name__ == '__main__':
     # number_of_subsets, columns, album_size, rangen
-    # define_dataset(5000, 30, 500, 1000)
+    # define_dataset(10000, 30, 500, 1000, 'big_dataset_12')
 
     ds_list = ['mini_dataset_1',
                'mini_dataset_2',
@@ -112,7 +116,7 @@ if __name__ == '__main__':
                'big_dataset_2',
                'big_dataset_3']
 
-    Grasp()
+    grasp('big_dataset_12', 20, .5)
     # for ds in ds_list:
     #     start = timeit.default_timer()
     #     sub, alb = read_data_set(ds)

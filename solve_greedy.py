@@ -11,12 +11,15 @@ class solver:
     cardinality = 0
     alpha = 0
     global_counter = 0
+    best_score = 0
+    worst_score = 0
 
     # parameterized constructor
-    def __init__(self, subsets, album_universe, k):
+    def __init__(self, subsets, album_universe, k, alpha):
         self.subsets = subsets
         self.album_universe = album_universe
         self.cardinality = k
+        self.alpha = alpha
 
     def solve_greedy(self):
         total = 0
@@ -95,6 +98,9 @@ class solver:
 
     def chunks(self, lst, n):
         list_chunks = list()
+        # print('Best Score: ', self.best_score, 'Worst score: ', self.worst_score)
+        # print('alpha: ', self.alpha * (self.best_score - self.worst_score))
+        picked = 0
 
         # Yield successive n-sized chunks from lst
         for i in range(0, len(lst), n):
@@ -103,9 +109,23 @@ class solver:
         flat_chunks = list()
 
         for chunk in list_chunks:
+            max_score = chunk[0][0]
+            min_score = chunk[-1][0]
             random.shuffle(chunk)
             for j in chunk:
-                flat_chunks.append(j)
+                # Normalize scores with best and worst of chunk
+                normalized_score = (j[0] - min_score) / (max_score - min_score) * 100
+                if normalized_score > self.alpha * (self.best_score - self.worst_score):
+                    picked += 1
+                    flat_chunks.append(j)
+                # Normalize scores with best and worst of full candidate list
+                # normalized_score = (j[0] - self.worst_score) / (self.best_score - self.worst_score) * 100
+                # if normalized_score > self.alpha * (self.best_score - self.worst_score):
+                #     picked += 1
+                #     flat_chunks.append(j)
+
+        # print(picked)
+        # print(len(lst))
 
         self.sorted_score_list = copy.copy(flat_chunks)
         return flat_chunks
@@ -134,6 +154,8 @@ class solver:
 
         # sort tuples by cost value
         sorted_scores = sorted(subset_score, key=lambda x: x[0], reverse=True)
+        self.best_score = sorted_scores[0][0]
+        self.worst_score = sorted_scores[-1][0]
         # Divide sorted score list in chunks of size k cardinality
         # Randomized each chunk and return flat list
         sorted_scores = self.chunks(sorted_scores, self.cardinality)
@@ -158,127 +180,6 @@ class solver:
 
         return covered_subsets, total
 
-    def localsearch_improved(self):
-        winning_list, total = self.solve_heuristic()
-        print('Total picked subsets: ', len(winning_list.keys()))
-        improved = False
-        finished = False
-        tries = 1
-        new_total = 0
-        improved_list = list()
-        all_tries = 0
-
-        while not finished:
-            print('Current total', total)
-            if not improved:
-                ls_total = 0
-                ls_album = copy.copy(self.album_universe)
-                ls_covered_subsets = dict()
-                ls_covered_album = set()
-                switched_list = list(winning_list.keys())
-                improved_score = list()
-                additional_scores = list()
-                print("switched", switched_list)
-                current_total = new_total
-            else:
-                total = new_total
-                ls_total = 0
-                ls_album = copy.copy(self.album_universe)
-                ls_covered_subsets = dict()
-                ls_covered_album = set()
-                switched_list = improved_list
-                tries = 0
-                improved_score = list()
-                additional_scores = list()
-                print("switched", switched_list)
-
-
-
-            for x in range(math.floor(len(switched_list)/2) + tries):
-                if x >= len(switched_list):
-                    print("Ya se checaron todos los subsets elegidos")
-                    # finished = True
-                    break
-                idx = switched_list[x]
-                score = 0
-                for y in self.subsets[idx][0]:
-                    if y in ls_album:
-                        ##print(y, 'found y')
-                        score += 1
-                        del ls_album[y]
-
-                idx_score_tuple = idx, score
-                improved_score.append(idx_score_tuple)
-
-            improved_score = sorted(improved_score, key=lambda x: x[1], reverse=True)
-            print('imp', improved_score)
-
-            print(len(self.sorted_score_list) - self.global_counter)
-            for x in range(len(self.sorted_score_list) - self.global_counter):
-                appears = set()
-                sorted_sub_idx = self.global_counter + x
-                actual_idx = self.sorted_score_list[sorted_sub_idx][1]
-                for y in self.subsets[actual_idx][0]:
-                    if y in ls_album:
-                        appears.add(y)
-                        # del ls_album[y] ## maybe remove
-                tup = len(appears), self.subsets[actual_idx][2]
-                additional_scores.append(tup)
-
-            additional_scores = sorted(additional_scores, key=lambda x: x[0], reverse=True)
-            final_album = copy.copy(self.album_universe)
-
-            for x in improved_score:
-                if len(ls_covered_album) == len(final_album.keys()):
-                    break
-                for y in self.subsets[x[0]][0]:
-                    if y in final_album and final_album.get(y) != 1:
-                        final_album[y] = 1
-                        ls_covered_album.add(y)
-                        ls_covered_subsets[x[0]] = 1
-
-            print('winning', winning_list)
-
-            for x in additional_scores:
-                if len(ls_covered_album) == len(final_album.keys()):
-                    break
-                for y in self.subsets[x[1]][0]:
-                    if y in final_album and final_album.get(y) != 1:
-                        final_album[y] = 1
-                        ls_covered_album.add(y)
-                        ls_covered_subsets[x[1]] = 1
-
-            print('covered', ls_covered_subsets)
-            print(len(ls_covered_album), len(final_album.keys()))
-
-            new_count = 0
-
-            for sub in ls_covered_subsets.keys():
-                ls_total += self.subsets[sub][1]
-                new_count += 1
-
-            print('new total: ', ls_total)
-            print('new count', new_count)
-
-            tries += 1
-            all_tries += 1
-            print(all_tries, 'intento')
-
-            if ls_total < total and len(ls_covered_album) == len(final_album.keys()):
-                print('Improved')
-                improved = True
-                improved_list = list(ls_covered_subsets.keys())
-                new_total = ls_total
-            else:
-                improved = False
-
-            if tries == 100:
-                improved = True
-
-            if tries == 60:
-                finished = True
-
-        print('Improved list: ',len(improved_list))
 
     def local_search_swap(self):
         winning_list, total = self.solve_heuristic_randomized()
@@ -364,8 +265,8 @@ class solver:
                     break
 
             # comparar costos
-            if len(found_subset) > 0:
-                print(found_subset, 'found subset')
+            # if len(found_subset) > 0:
+                # print(found_subset, 'found subset')
 
             # print(tries, 'tries')
             # print(cost_sum, 'cost')
