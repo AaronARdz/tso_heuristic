@@ -81,13 +81,11 @@ def grasp(name, k, alpha):
     sub, alb = read_data_set(name)
     solutions = list()
 
-    for i in range(200):
-        solver = sv.solver(sub, alb, k, alpha)
+    for i in range(500):
+        solver = sv.Solver(sub, alb, k, alpha, chunk_size=10)
+        solver.set_alpha(True)
         total, solution = solver.local_search_swap()
         number_of_subsets = solution.keys()
-        print('TOTAL: ', total)
-        print('SOLUTION: ', solution)
-        print('NUMBER OF SUBSETS: ', len(number_of_subsets))
         tup = total, len(number_of_subsets)
         solutions.append(tup)
 
@@ -104,7 +102,7 @@ def grasp(name, k, alpha):
 
 if __name__ == '__main__':
     # number_of_subsets, columns, album_size, rangen
-    # define_dataset(10000, 30, 500, 1000, 'big_dataset_12')
+    define_dataset(4000, 10, 200, 400, 'medium_dataset_9')
 
     ds_list = ['mini_dataset_1',
                'mini_dataset_2',
@@ -116,7 +114,9 @@ if __name__ == '__main__':
                'big_dataset_2',
                'big_dataset_3']
 
-    grasp('big_dataset_12', 20, .5)
+    grasp('mini_dataset_9', 2, .9)
+    grasp('mini_dataset_9', 2, .5)
+    grasp('mini_dataset_9', 2, .1)
     # for ds in ds_list:
     #     start = timeit.default_timer()
     #     sub, alb = read_data_set(ds)

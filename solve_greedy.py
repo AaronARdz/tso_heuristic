@@ -3,23 +3,33 @@ import math
 import random
 import numpy as np
 
-class solver:
+class Solver:
     subsets = list()
     album_universe = dict()
     scores = list()
     sorted_score_list = list()
+    chunk_size = 0
     cardinality = 0
     alpha = 0
     global_counter = 0
     best_score = 0
     worst_score = 0
+    allow_alpha = False
+    allow_k_best = False
 
     # parameterized constructor
-    def __init__(self, subsets, album_universe, k, alpha):
+    def __init__(self, subsets, album_universe, k, alpha, chunk_size):
         self.subsets = subsets
         self.album_universe = album_universe
         self.cardinality = k
         self.alpha = alpha
+        self.chunk_size = chunk_size
+
+    def set_alpha(self, value):
+        self.allow_alpha = value
+
+    def set_k_best(self, value):
+        self.allow_k_best = value
 
     def solve_greedy(self):
         total = 0
@@ -112,12 +122,20 @@ class solver:
             max_score = chunk[0][0]
             min_score = chunk[-1][0]
             random.shuffle(chunk)
+            k_counter = copy.copy(self.cardinality)
             for j in chunk:
                 # Normalize scores with best and worst of chunk
-                normalized_score = (j[0] - min_score) / (max_score - min_score) * 100
-                if normalized_score > self.alpha * (self.best_score - self.worst_score):
-                    picked += 1
-                    flat_chunks.append(j)
+                # Select subsets based in cardinality
+                if self.allow_alpha:
+                    normalized_score = (j[0] - min_score) / (max_score - min_score) * 100
+                    if normalized_score > self.alpha * (self.best_score - self.worst_score):
+                        picked += 1
+                        flat_chunks.append(j)
+                if self.allow_k_best and self.cardinality <= self.chunk_size:
+                    if k_counter > 0:
+                        picked += 1
+                        k_counter -= 1
+                        flat_chunks.append(j)
                 # Normalize scores with best and worst of full candidate list
                 # normalized_score = (j[0] - self.worst_score) / (self.best_score - self.worst_score) * 100
                 # if normalized_score > self.alpha * (self.best_score - self.worst_score):
@@ -158,7 +176,7 @@ class solver:
         self.worst_score = sorted_scores[-1][0]
         # Divide sorted score list in chunks of size k cardinality
         # Randomized each chunk and return flat list
-        sorted_scores = self.chunks(sorted_scores, self.cardinality)
+        sorted_scores = self.chunks(sorted_scores, self.chunk_size)
 
         # select subsets and fill album
         for score in sorted_scores:
@@ -183,8 +201,8 @@ class solver:
 
     def local_search_swap(self):
         winning_list, total = self.solve_heuristic_randomized()
-        print('FIRST SOLUTION', winning_list)
-        print('Total picked subsets: ', len(winning_list.keys()))
+        # print('FIRST SOLUTION', winning_list)
+        # print('Total picked subsets: ', len(winning_list.keys()))
         current_solution = copy.copy(winning_list)
         new_solution = current_solution
         ls_album = dict()
@@ -194,7 +212,7 @@ class solver:
         new_total = current_total
         tries = 0
         global_counter = 0
-        print(new_total)
+        # print(new_total)
 
         while not finished:
             if not improved:
@@ -212,7 +230,7 @@ class solver:
 
             for x in range(math.floor(len(switched_list))):
                 if x >= len(switched_list):
-                    print("Ya se checaron todos los subsets elegidos")
+                    # print("Ya se checaron todos los subsets elegidos")
                     # finished = True
                     break
                 idx = switched_list[x]
@@ -273,15 +291,15 @@ class solver:
             if found and cost_sum > found_subset[1]:
                 for sub in subsets_to_replace:
                     del current_solution[sub]
-                print('mejora encontrada')
+                # print('mejora encontrada')
                 # actualizar el total
                 new_total = current_total - cost_sum
                 new_total += found_subset[1]
                 # actualizar la lista de subsets elegida
                 current_solution[found_subset[2]] = 1
-                print('Improved total', new_total)
-                print('Total new subsets: ', len(current_solution.keys()))
-                print(new_solution)
+                # print('Improved total', new_total)
+                # print('Total new subsets: ', len(current_solution.keys()))
+                # print(new_solution)
                 new_solution = current_solution
                 improved = True
             else:
