@@ -6,7 +6,7 @@ import sys
 import pandas as pd
 import numpy as np
 import csv
-import solve_greedy as sv
+import solver as sv
 import timeit
 
 
@@ -78,7 +78,7 @@ def grasp(name, k, alpha):
     start = timeit.default_timer()
     sub, alb = read_data_set(name)
     solutions = list()
-    iterations = 50
+    iterations = 10
     chunks = 10
 
     for i in range(iterations):
