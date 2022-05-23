@@ -201,8 +201,6 @@ class Solver:
 
     def local_search_swap(self):
         winning_list, total = self.solve_heuristic_randomized()
-        # print('FIRST SOLUTION', winning_list)
-        # print('Total picked subsets: ', len(winning_list.keys()))
         current_solution = copy.copy(winning_list)
         new_solution = current_solution
         ls_album = dict()
@@ -212,7 +210,8 @@ class Solver:
         new_total = current_total
         tries = 0
         global_counter = 0
-        # print(new_total)
+        switched_list = list()
+        improved_score = list()
 
         while not finished:
             if not improved:
@@ -230,8 +229,8 @@ class Solver:
 
             for x in range(math.floor(len(switched_list))):
                 if x >= len(switched_list):
-                    # print("Ya se checaron todos los subsets elegidos")
-                    # finished = True
+                    print("Ya se checaron todos los subsets elegidos")
+                    finished = True
                     break
                 idx = switched_list[x]
                 score = 0

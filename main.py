@@ -69,8 +69,6 @@ def read_data_set(name):
             if len(new_line) == 1:
                 temp_dict[new_line[0]] = 0
             else:
-                # int_subset = map(lambda x: [x], new_line[0][1:-1].split())
-                # print(int_subset)
                 split_line = [new_line[0][1:-1].split(), float(new_line[1]), int(new_line[2])]
                 temp_list.append(split_line)
     return temp_list, temp_dict
@@ -80,10 +78,12 @@ def grasp(name, k, alpha):
     start = timeit.default_timer()
     sub, alb = read_data_set(name)
     solutions = list()
+    iterations = 50
+    chunks = 10
 
-    for i in range(500):
-        solver = sv.Solver(sub, alb, k, alpha, chunk_size=10)
-        solver.set_alpha(True)
+    for i in range(iterations):
+        solver = sv.Solver(sub, alb, k, alpha, chunk_size=chunks)
+        solver.set_k_best(True)
         total, solution = solver.local_search_swap()
         number_of_subsets = solution.keys()
         tup = total, len(number_of_subsets)
@@ -91,11 +91,11 @@ def grasp(name, k, alpha):
 
     solutions = sorted(solutions, key=lambda x: x[0], reverse=False)
 
-    # for sol in solutions:
-    #    print(sol)
+    for sol in solutions:
+        print(sol)
 
     print('Best Solution: ', solutions[0])
-    print('Worst Solution: ', solutions[-1])
+    print('Initial Solution: ', solutions[-1])
     stop = timeit.default_timer()
     print('Time: ', stop - start)
 
@@ -114,31 +114,5 @@ if __name__ == '__main__':
                'big_dataset_2',
                'big_dataset_3']
 
-    grasp('mini_dataset_9', 2, .9)
-    grasp('mini_dataset_9', 2, .5)
-    grasp('mini_dataset_9', 2, .1)
-    # for ds in ds_list:
-    #     start = timeit.default_timer()
-    #     sub, alb = read_data_set(ds)
-    #     solver = sv.solver(sub, alb)
-    #     winning_list, total, albs = solver.solve_heuristic()
-    #     print(ds)
-    #     print(len(winning_list.keys()), 'picked subsets')
-    #     print(len(sub), 'total subs')
-    #     print(total)
-    #     stop = timeit.default_timer()
-    #     print('Time: ', stop - start)
-    #     print('----------------------------------------')
+    grasp('big_dataset_9', 8, .5)
 
-    # start = timeit.default_timer()
-    # sub, alb = read_data_set("mini_dataset_2")
-    # solver = sv.solver(sub, alb)
-    # winning_list, total, albs = solver.solve_heuristic()
-    # print("mini")
-    # print('picked subsets', winning_list,)
-    # print('total subs', len(sub))
-    # print(total)
-    # stop = timeit.default_timer()
-    # print('Time: ', stop - start)
-
-    # Local Search
